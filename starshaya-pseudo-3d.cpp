@@ -75,41 +75,41 @@ int main() {
             angle += ANGLE_SPEED;
         }
 
-        for (int column = 0; column < SCREEN_WIDTH; ++column) { // сложная часть - 
-            double curAngle = angle - VIEW_ANGLE / 2 + column * 1.0 / SCREEN_WIDTH * VIEW_ANGLE;
-            auto newDir = getDirection(curAngle);
+        for (int column = 0; column < SCREEN_WIDTH; ++column) { // сложная часть - пускаем лучи. цикл по столбикам.
+            double curAngle = angle - VIEW_ANGLE / 2 + column * 1.0 / SCREEN_WIDTH * VIEW_ANGLE; // понимаем, под каким углом пускать луч.
+            auto newDir = getDirection(curAngle); // получаем направление луча
             double dx = newDir.first;
             double dy = newDir.second;
             double curDist = 0;
             double curX = pos.first;
             double curY = pos.second;
             bool bound = false;
-            while (true) {
-                if (field[floor(curX)][floor(curY)] == '#') {
+            while (true) { // луч летит.
+                if (field[floor(curX)][floor(curY)] == '#') { // если заехали в стенку - останавливаемся.
                     if (((-floor(curX) + curX) < 0.07 || (ceil(curX) - curX) < 0.07) &&
-                        ((-floor(curY) + curY) < 0.07 || (ceil(curY) - curY) < 0.07)) {
+                        ((-floor(curY) + curY) < 0.07 || (ceil(curY) - curY) < 0.07)) { // это для красивого эффекта краев стен.
                             bound = true;
-                    }
+                    } 
                     break;
                 }
                 curDist += RAY_SPEED;
                 curX += dx * RAY_SPEED;
                 curY += dy * RAY_SPEED;
             }
-            double white = max(0.0, (MAX_DIST - curDist) / MAX_DIST);
-            int amountWhite = floor(white * SCREEN_HEIGHT / 2);
-            for (int row = 0; row < SCREEN_HEIGHT; ++row) {
+            double white = max(0.0, (MAX_DIST - curDist) / MAX_DIST); // понимаем, какой процент столбика нужно красить.
+            int amountWhite = floor(white * SCREEN_HEIGHT / 2); // конвертируем в количество символов
+            for (int row = 0; row < SCREEN_HEIGHT; ++row) { 
                 if (abs(SCREEN_HEIGHT / 2 - row) <= amountWhite) {
-                    if (!bound) {
+                    if (!bound) { // если не попали в край стены, то заливаем белым
                         toPrint[row * SCREEN_WIDTH + column] = '#';
-                    } else {
+                    } else { // иначе, черным
                         toPrint[row * SCREEN_WIDTH + column] = ' ';
                     }
-                } else if (row > SCREEN_HEIGHT / 2) {
+                } else if (row > SCREEN_HEIGHT / 2) { // а тут делаем красивый пол. все, что в нижней половине и не стенка, считаем полом
                     toPrint[row * SCREEN_WIDTH + column] = '.';
                 }
             }
         }
-        WriteConsoleOutputCharacter(hConsole, toPrint, SCREEN_WIDTH * SCREEN_HEIGHT, {0, 0}, &dwBytesWritten);
+        WriteConsoleOutputCharacter(hConsole, toPrint, SCREEN_WIDTH * SCREEN_HEIGHT, {0, 0}, &dwBytesWritten); // а это волшебный вывод
     }
 }
